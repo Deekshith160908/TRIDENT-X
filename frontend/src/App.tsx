@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import ReactMarkdown from "react-markdown";
-import { Shield, ShieldAlert, ShieldCheck, Search, Activity, AlertTriangle, AlertCircle, Clock, Trash2, Network, TerminalSquare, Info, MessageSquare, Send } from "lucide-react";
-import { analyzeUrl, getRecentScans, chatWithCopilot } from "./lib/api";
+import { Shield, ShieldAlert, ShieldCheck, Search, Activity, AlertTriangle, AlertCircle, Clock, Trash2, TerminalSquare, Info } from "lucide-react";
+import { analyzeUrl, getRecentScans } from "./lib/api";
 import type { ScanRecord } from "./shared/schema";
 import { cn } from "./lib/utils";
 
@@ -11,29 +10,6 @@ function App() {
   const [result, setResult] = useState<ScanRecord | null>(null);
   const [history, setHistory] = useState<ScanRecord[]>([]);
   const [error, setError] = useState("");
-  
-  const [chatMessage, setChatMessage] = useState("");
-  const [chatHistory, setChatHistory] = useState<{role: 'user' | 'ai', content: string}[]>([]);
-  const [chatLoading, setChatLoading] = useState(false);
-
-  const handleChatSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatMessage.trim() || !result) return;
-    
-    const userMsg = chatMessage;
-    setChatMessage("");
-    setChatHistory(prev => [...prev, { role: 'user', content: userMsg }]);
-    setChatLoading(true);
-    
-    try {
-      const reply = await chatWithCopilot(result.id, userMsg);
-      setChatHistory(prev => [...prev, { role: 'ai', content: reply }]);
-    } catch (err) {
-      setChatHistory(prev => [...prev, { role: 'ai', content: "Error connecting to Security Copilot." }]);
-    } finally {
-      setChatLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchHistory();
@@ -66,7 +42,7 @@ function App() {
     setLoading(true);
     setError("");
     setResult(null);
-    setChatHistory([]);
+
     
     try {
       const data = await analyzeUrl(url);
@@ -254,12 +230,12 @@ function App() {
                </h3>
                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {[
-                     { label: "Has SSL", value: result.deterministicSignals.hasSSL },
-                     { label: "Is IP Hostname", value: result.deterministicSignals.isIpHostname },
-                     { label: "Has Punycode/Homograph", value: result.deterministicSignals.hasPunycode },
-                     { label: "High-risk TLD", value: result.deterministicSignals.isHighRiskTld },
-                     { label: "Contains Phishing Keywords", value: result.deterministicSignals.hasPhishingKeywords },
-                     { label: "Is URL Shortener", value: result.deterministicSignals.isUrlShortener }
+                     { label: "Has SSL", value: (result.deterministicSignals as any).hasSSL },
+                     { label: "Is IP Hostname", value: (result.deterministicSignals as any).isIpHostname },
+                     { label: "Has Punycode/Homograph", value: (result.deterministicSignals as any).hasPunycode },
+                     { label: "High-risk TLD", value: (result.deterministicSignals as any).isHighRiskTld },
+                     { label: "Contains Phishing Keywords", value: (result.deterministicSignals as any).hasPhishingKeywords },
+                     { label: "Is URL Shortener", value: (result.deterministicSignals as any).isUrlShortener }
                   ].map((signal, i) => (
                      <div key={i} className="flex justify-between items-center p-3 rounded-lg bg-gray-900/50 border border-gray-800">
                         <span className="text-xs text-gray-400 font-medium">{signal.label}</span>
@@ -278,7 +254,7 @@ function App() {
                   <div className="flex justify-between items-center p-3 rounded-lg bg-gray-900/50 border border-gray-800">
                      <span className="text-xs text-gray-400 font-medium">Subdomain Count</span>
                      <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-gray-800 text-white">
-                        {result.deterministicSignals.subdomainCount}
+                        {(result.deterministicSignals as any).subdomainCount}
                      </span>
                   </div>
                </div>
