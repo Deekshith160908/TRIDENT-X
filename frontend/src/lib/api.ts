@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ScanRecord } from "../shared/schema";
+import type { ScanRecord } from "../shared/schema";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Shield, ShieldAlert, ShieldCheck, Search, Activity, Lock, AlertTriangle, AlertCircle, ChevronRight, Server, Link2, Clock } from "lucide-react";
+import { Shield, ShieldAlert, ShieldCheck, Search, Activity, Lock, AlertTriangle, AlertCircle, Server, Link2, Clock } from "lucide-react";
 import { analyzeUrl, getRecentScans } from "./lib/api";
-import { ScanRecord } from "./shared/schema";
+import type { ScanRecord } from "./shared/schema";
 import { cn } from "./lib/utils";
 
 function App() {
