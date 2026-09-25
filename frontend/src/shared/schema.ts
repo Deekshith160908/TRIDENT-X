@@ -26,8 +26,27 @@ export const AiAnalysisResponseSchema = z.object({
   aiTrustScore: z.number().int().min(0).max(100),
   verdict: z.enum(["SAFE", "SUSPICIOUS", "MALICIOUS"]),
   summary: z.string(),
-  threatVectors: z.array(z.string()),
+  threatVectors: z.array(z.object({
+    name: z.string(),
+    severity: z.enum(["CLEAN", "LOW", "MEDIUM", "HIGH", "CRITICAL"]),
+    status: z.string(),
+    evidence: z.array(z.string()),
+    explanation: z.string()
+  })),
   recommendations: z.array(z.string()),
+  riskFactors: z.array(z.object({
+    name: z.string(),
+    impact: z.number(),
+    severity: z.string(),
+    reason: z.string(),
+    evidence: z.string()
+  })),
+  securityEvidence: z.array(z.object({
+    title: z.string(),
+    evidence: z.array(z.string()),
+    whyItMatters: z.string()
+  })),
+  confidence: z.number().min(0).max(100).default(85)
 });
 
 export type AiAnalysisResponse = z.infer<typeof AiAnalysisResponseSchema>;

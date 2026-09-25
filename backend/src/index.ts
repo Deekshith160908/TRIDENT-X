@@ -25,7 +25,7 @@ app.post("/api/analyze", async (req: Request, res: Response) => {
     });
     
     if (rows.length > 0) {
-      const row = rows[0];
+      const row = rows[0] as any;
       const cachedScan = {
         id: row.id,
         originalUrl: row.original_url,
@@ -74,7 +74,7 @@ app.post("/api/analyze", async (req: Request, res: Response) => {
       sql: `SELECT * FROM scans WHERE normalized_url = ? ORDER BY created_at DESC LIMIT 1`,
       args: [normalizedUrl]
     });
-    const row = insertedRows[0];
+    const row = insertedRows[0] as any;
     const scanRecord = {
       id: row.id,
       originalUrl: row.original_url,
@@ -104,20 +104,69 @@ app.get("/api/scans", async (req: Request, res: Response) => {
       sql: `SELECT * FROM scans ORDER BY created_at DESC LIMIT 50`,
       args: []
     });
-    const recentScans = rows.map(row => ({
-      id: row.id,
-      originalUrl: row.original_url,
-      normalizedUrl: row.normalized_url,
-      domain: row.domain,
-      trustScore: row.trust_score,
-      verdict: row.verdict,
-      deterministicSignals: typeof row.deterministic_signals === 'string' ? JSON.parse(row.deterministic_signals) : row.deterministic_signals,
-      aiAnalysis: typeof row.ai_analysis === 'string' ? JSON.parse(row.ai_analysis) : row.ai_analysis,
-      createdAt: row.created_at
+    const recentScans = rows.map((r: any) => ({
+      id: r.id,
+      originalUrl: r.original_url,
+      normalizedUrl: r.normalized_url,
+      domain: r.domain,
+      trustScore: r.trust_score,
+      verdict: r.verdict,
+      deterministicSignals: typeof r.deterministic_signals === 'string' ? JSON.parse(r.deterministic_signals) : r.deterministic_signals,
+      aiAnalysis: typeof r.ai_analysis === 'string' ? JSON.parse(r.ai_analysis) : r.ai_analysis,
+      createdAt: r.created_at
     }));
     res.status(200).json(recentScans);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch scans" });
+  }
+});
+
+app.delete("/api/scans/:id", async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id as string);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "Invalid ID" });
+    }
+    
+    await client.execute({
+      sql: `DELETE FROM scans WHERE id = ?`,
+      args: [id]
+    });
+    
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete scan" });
+  }
+});
+
+app.post("/api/chat", async (req: Request, res: Response) => {
+  try {
+    const { scanId, message } = req.body;
+    
+    if (!scanId || !message) {
+      return res.status(400).json({ error: "scanId and message are required" });
+    }
+
+    const { rows } = await client.execute({
+      sql: `SELECT * FROM scans WHERE id = ? LIMIT 1`,
+      args: [scanId]
+    });
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Scan not found" });
+    }
+
+    const row = rows[0] as any;
+    const aiAnalysis = typeof row.ai_analysis === 'string' ? JSON.parse(row.ai_analysis) : row.ai_analysis;
+    const originalUrl = row.original_url;
+
+    const { chatWithSecurityCopilot } = await import("./services/gemini-service");
+    const reply = await chatWithSecurityCopilot(originalUrl, aiAnalysis, message);
+
+    res.status(200).json({ reply });
+  } catch (error) {
+    console.error("Chat error:", error);
+    res.status(500).json({ error: "Failed to process chat" });
   }
 });
 

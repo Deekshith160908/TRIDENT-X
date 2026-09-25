@@ -4,6 +4,69 @@
 
 @layer base {
   body {
-    @apply bg-background text-white antialiased selection:bg-primary/30;
+    @apply bg-[#03050c] text-white antialiased selection:bg-cyan-500/30 overflow-x-hidden;
   }
 }
+
+@layer utilities {
+  .cyber-grid {
+    background-image: 
+      linear-gradient(to right, rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    transform: perspective(600px) rotateX(70deg) translateY(-100px) scale(3);
+    transform-origin: top center;
+  }
+  
+  .glass-panel {
+    @apply bg-[#060c18]/60 backdrop-blur-xl border border-cyan-500/30 shadow-[0_0_25px_rgba(0,255,255,0.15)];
+  }
+
+  .neon-border-glow {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), inset 0 0 15px rgba(138, 43, 226, 0.4);
+  }
+
+  .holographic-globe {
+    background: radial-gradient(circle at center, rgba(0, 255, 255, 0.08) 0%, transparent 65%);
+    border-radius: 50%;
+    border: 2px dashed rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 150px rgba(0, 255, 255, 0.15), inset 0 0 80px rgba(0, 255, 255, 0.15);
+  }
+
+  .btn-neon {
+    @apply bg-gradient-to-r from-cyan-500 to-blue-600 border border-cyan-300/50 text-white shadow-[0_0_15px_rgba(0,255,255,0.6)] hover:shadow-[0_0_25px_rgba(0,255,255,0.8)] transition-all;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes spin-slow-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+@keyframes scan-wave {
+  0% { transform: scale(0.8) translate(-50%, -50%); opacity: 0.8; }
+  100% { transform: scale(2) translate(-25%, -25%); opacity: 0; }
+}
+@keyframes light-streak {
+  0% { transform: translateX(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-float-delayed { animation: float-delayed 7s ease-in-out infinite 1s; }
+.animate-spin-slow { animation: spin-slow 30s linear infinite; }
+.animate-spin-slow-reverse { animation: spin-slow-reverse 40s linear infinite; }
+.animate-scan-wave { animation: scan-wave 4s ease-out infinite; transform-origin: top left; }
+.animate-light-streak { animation: light-streak 3s linear infinite; }

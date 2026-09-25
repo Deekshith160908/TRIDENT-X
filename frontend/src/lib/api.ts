@@ -14,3 +14,8 @@ export const getRecentScans = async (): Promise<ScanRecord[]> => {
   const response = await api.get<ScanRecord[]>("/scans");
   return response.data;
 };
+
+export const chatWithCopilot = async (scanId: number, message: string): Promise<string> => {
+  const response = await api.post<{ reply: string }>("/chat", { scanId, message });
+  return response.data.reply;
+};
