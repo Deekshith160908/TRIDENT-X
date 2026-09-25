@@ -1,0 +1,14 @@
+{
+  "name": "trustlens-ai",
+  "version": "1.0.0",
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npx tsx watch src/index.ts",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "db:push": "cd backend && npx drizzle-kit push"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
